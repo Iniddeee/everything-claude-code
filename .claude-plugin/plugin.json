@@ -1,0 +1,113 @@
+{
+  "name": "everything-claude-code",
+  "version": "1.0.0",
+  "description": "Complete Claude Code configuration collection - agents, skills, hooks, commands, rules, MCPs",
+  "author": "affaan-m",
+  "license": "MIT",
+  "components": {
+    "agents": {
+      "path": "./agents",
+      "agents": [
+        "planner.md",
+        "architect.md",
+        "tdd-guide.md",
+        "code-reviewer.md",
+        "security-reviewer.md",
+        "build-error-resolver.md",
+        "e2e-runner.md",
+        "refactor-cleaner.md",
+        "doc-updater.md",
+        "go-reviewer.md",
+        "go-build-resolver.md"
+      ]
+    },
+    "skills": {
+      "path": "./skills",
+      "skills": [
+        "coding-standards",
+        "backend-patterns",
+        "frontend-patterns",
+        "continuous-learning",
+        "continuous-learning-v2",
+        "iterative-retrieval",
+        "strategic-compact",
+        "tdd-workflow",
+        "security-review",
+        "eval-harness",
+        "verification-loop",
+        "golang-patterns",
+        "golang-testing"
+      ]
+    },
+    "commands": {
+      "path": "./commands",
+      "commands": [
+        "tdd.md",
+        "plan.md",
+        "e2e.md",
+        "code-review.md",
+        "build-fix.md",
+        "refactor-clean.md",
+        "learn.md",
+        "checkpoint.md",
+        "verify.md",
+        "setup-pm.md",
+        "go-review.md",
+        "go-test.md",
+        "go-build.md",
+        "skill-create.md",
+        "instinct-status.md",
+        "instinct-import.md",
+        "instinct-export.md",
+        "evolve.md"
+      ]
+    },
+    "rules": {
+      "path": "./rules",
+      "rules": [
+        "security.md",
+        "coding-style.md",
+        "testing.md",
+        "git-workflow.md",
+        "agents.md",
+        "performance.md"
+      ]
+    },
+    "hooks": {
+      "path": "./hooks",
+      "config": "hooks.json",
+      "scripts": "./scripts/hooks"
+    },
+    "scripts": {
+      "path": "./scripts",
+      "lib": "./scripts/lib"
+    },
+    "contexts": {
+      "path": "./contexts",
+      "contexts": [
+        "dev.md",
+        "review.md",
+        "research.md"
+      ]
+    },
+    "mcp": {
+      "path": "./mcp-configs",
+      "config": "mcp-servers.json"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/affaan-m/everything-claude-code.git"
+  },
+  "keywords": [
+    "claude-code",
+    "plugin",
+    "agents",
+    "skills",
+    "automation",
+    "productivity"
+  ],
+  "engines": {
+    "claude-code": ">=0.6.0"
+  }
+}

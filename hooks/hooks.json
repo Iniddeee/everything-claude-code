@@ -1,0 +1,11 @@
+{
+  "hooks": {
+    "PreToolUse": [],
+    "PostToolUse": [],
+    "Stop": [],
+    "SessionStart": [],
+    "SessionEnd": []
+  },
+  "description": "Hook configuration for Everything Claude Code plugin",
+  "version": "1.0.0"
+}

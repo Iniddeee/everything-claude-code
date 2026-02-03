@@ -1,0 +1,57 @@
+{
+  "name": "everything-claude-code",
+  "displayName": "Everything Claude Code",
+  "description": "Complete Claude Code configuration collection - agents, skills, hooks, commands, rules, MCPs. Battle-tested configs from an Anthropic hackathon winner.",
+  "version": "1.0.0",
+  "author": "affaan-m",
+  "license": "MIT",
+  "homepage": "https://github.com/affaan-m/everything-claude-code",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/affaan-m/everything-claude-code.git"
+  },
+  "keywords": [
+    "claude-code",
+    "plugin",
+    "agents",
+    "skills",
+    "hooks",
+    "commands",
+    "rules",
+    "mcp",
+    "productivity",
+    "automation",
+    "tdd",
+    "code-review",
+    "security",
+    "golang"
+  ],
+  "category": "Productivity",
+  "tags": [
+    "agents",
+    "skills",
+    "automation",
+    "productivity",
+    "tdd",
+    "code-review",
+    "security",
+    "go"
+  ],
+  "installType": "plugin",
+  "components": {
+    "agents": 11,
+    "skills": 13,
+    "commands": 18,
+    "rules": 6,
+    "hooks": 1,
+    "scripts": 5,
+    "contexts": 3,
+    "mcp": 1
+  },
+  "compatibility": {
+    "minVersion": "0.6.0",
+    "platforms": ["win32", "darwin", "linux"]
+  },
+  "publishedAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-01T00:00:00Z"
+}
