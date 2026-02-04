@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Analysis Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 1000px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #856404;
+            font-size: 0.9em;
+        }
+
+        .scan-button {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .scan-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(231, 76, 60, 0.3);
+        }
+
+        .scan-button:active {
+            transform: translateY(0);
+        }
+
+        .scan-button.scanning {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .fingerprint-display {
+            display: none;
+            text-align: left;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            border: 1px solid #e9ecef;
+        }
+
+        .fingerprint-display.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .info-section {
+            margin-bottom: 20px;
+        }
+
+        .info-section h3 {
+            color: #495057;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+            border-bottom: 2px solid #e74c3c;
+            padding-bottom: 5px;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #495057;
+            min-width: 200px;
+        }
+
+        .info-value {
+            color: #212529;
+            word-break: break-all;
+            font-family: 'Courier New', monospace;
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .export-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .export-button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background 0.3s ease;
+        }
+
+        .export-button:hover {
+            background: #218838;
+        }
+
+        .export-button.json {
+            background: #007bff;
+        }
+
+        .export-button.json:hover {
+            background: #0056b3;
+        }
+
+        .fingerprint-hash {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .hash-value {
+            font-family: 'Courier New', monospace;
+            font-size: 1.1em;
+            color: #155724;
+            word-break: break-all;
+            margin-top: 10px;
+        }
+
+        .risk-indicator {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-left: 10px;
+            font-size: 0.8em;
+        }
+
+        .risk-high {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .risk-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .risk-low {
+            background: #d4edda;
+            color: #155724;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔒 Browser Fingerprinting Tool</h1>
+        <p class="subtitle">Educational Cybersecurity - Browser Analysis</p>
+        
+        <div class="warning">
+            ⚠️ <strong>Educational Purpose Only:</strong> This tool demonstrates how websites can identify and track users through browser fingerprinting techniques. Use responsibly and only for learning about cybersecurity and privacy.
+        </div>
+        
+        <button class="scan-button" onclick="startFingerprinting()">
+            Start Security Analysis
+        </button>
+
+        <div id="fingerprintDisplay" class="fingerprint-display">
+            <div class="fingerprint-hash">
+                <strong>🔐 Unique Fingerprint Hash:</strong>
+                <div class="hash-value" id="fingerprintHash"></div>
+            </div>
+
+            <div class="info-section">
+                <h3>🌐 Basic Browser Information</h3>
+                <div class="info-item">
+                    <span class="info-label">User Agent:</span>
+                    <span class="info-value" id="userAgent"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Platform:</span>
+                    <span class="info-value" id="platform"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Language:</span>
+                    <span class="info-value" id="language"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Languages:</span>
+                    <span class="info-value" id="languages"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Online Status:</span>
+                    <span class="info-value" id="onlineStatus"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Cookie Enabled:</span>
+                    <span class="info-value" id="cookieEnabled"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Do Not Track:</span>
+                    <span class="info-value" id="doNotTrack"></span>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h3>🖥️ Screen & Display</h3>
+                <div class="info-item">
+                    <span class="info-label">Screen Resolution:</span>
+                    <span class="info-value" id="screenResolution"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Available Resolution:</span>
+                    <span class="info-value" id="availResolution"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Color Depth:</span>
+                    <span class="info-value" id="colorDepth"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Pixel Ratio:</span>
+                    <span class="info-value" id="pixelRatio"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Touch Support:</span>
+                    <span class="info-value" id="touchSupport"></span>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h3>🎨 Canvas & WebGL Fingerprint</h3>
+                <div class="info-item">
+                    <span class="info-label">Canvas Hash:</span>
+                    <span class="info-value" id="canvasHash"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">WebGL Vendor:</span>
+                    <span class="info-value" id="webglVendor"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">WebGL Renderer:</span>
+                    <span class="info-value" id="webglRenderer"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">WebGL Hash:</span>
+                    <span class="info-value" id="webglHash"></span>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h3>🔧 Browser Capabilities</h3>
+                <div class="info-item">
+                    <span class="info-label">Java Enabled:</span>
+                    <span class="info-value" id="javaEnabled"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Geolocation:</span>
+                    <span class="info-value" id="geolocation"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">WebRTC:</span>
+                    <span class="info-value" id="webrtc"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">WebAudio:</span>
+                    <span class="info-value" id="webaudio"></span>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h3>💾 Storage & Security</h3>
+                <div class="info-item">
+                    <span class="info-label">Local Storage:</span>
+                    <span class="info-value" id="localStorage"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Session Storage:</span>
+                    <span class="info-value" id="sessionStorage"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">IndexedDB:</span>
+                    <span class="info-value" id="indexedDB"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">WebSQL:</span>
+                    <span class="info-value" id="websql"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Current Protocol:</span>
+                    <span class="info-value" id="protocol"></span>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h3>🌍 Location & Time</h3>
+                <div class="info-item">
+                    <span class="info-label">Timezone:</span>
+                    <span class="info-value" id="timezone"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Timezone Offset:</span>
+                    <span class="info-value" id="timezoneOffset"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Current Time:</span>
+                    <span class="info-value" id="currentTime"></span>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h3>🔌 Plugins & Fonts</h3>
+                <div class="info-item">
+                    <span class="info-label">Plugin Count:</span>
+                    <span class="info-value" id="pluginCount"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Plugins:</span>
+                    <span class="info-value" id="plugins"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Font Detection:</span>
+                    <span class="info-value" id="fontDetection"></span>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h3>🌐 Network Information</h3>
+                <div class="info-item">
+                    <span class="info-label">Connection Type:</span>
+                    <span class="info-value" id="connectionType"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Effective Type:</span>
+                    <span class="info-value" id="effectiveType"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Downlink:</span>
+                    <span class="info-value" id="downlink"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">RTT:</span>
+                    <span class="info-value" id="rtt"></span>
+                </div>
+            </div>
+
+            <div class="export-buttons">
+                <button class="export-button" onclick="exportAsText()">
+                    Export as Text
+                </button>
+                <button class="export-button json" onclick="exportAsJSON()">
+                    Export as JSON
+                </button>
+                <button class="export-button" onclick="saveToLocalStorage()">
+                    Save Locally
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let fingerprintData = {};
+
+        async function startFingerprinting() {
+            const button = document.querySelector('.scan-button');
+            button.classList.add('scanning');
+            button.textContent = 'Analyzing...';
+
+            // Collect all fingerprint data
+            await collectBasicInfo();
+            await collectScreenInfo();
+            await collectCanvasFingerprint();
+            await collectWebGLFingerprint();
+            await collectCapabilities();
+            await collectStorageInfo();
+            await collectLocationTime();
+            await collectPluginInfo();
+            await collectNetworkInfo();
+            await detectFonts();
+
+            // Generate fingerprint hash
+            generateFingerprintHash();
+
+            // Display results
+            document.getElementById('fingerprintDisplay').classList.add('active');
+            
+            button.classList.remove('scanning');
+            button.textContent = 'Analysis Complete';
+
+            // Auto-save to localStorage
+            saveToLocalStorage();
+        }
+
+        async function collectBasicInfo() {
+            fingerprintData.userAgent = navigator.userAgent;
+            fingerprintData.platform = navigator.platform;
+            fingerprintData.language = navigator.language;
+            fingerprintData.languages = navigator.languages ? navigator.languages.join(', ') : 'Not available';
+            fingerprintData.onlineStatus = navigator.onLine ? 'Online' : 'Offline';
+            fingerprintData.cookieEnabled = navigator.cookieEnabled ? 'Yes' : 'No';
+            fingerprintData.doNotTrack = navigator.doNotTrack ? navigator.doNotTrack : 'Not set';
+
+            document.getElementById('userAgent').textContent = fingerprintData.userAgent;
+            document.getElementById('platform').textContent = fingerprintData.platform;
+            document.getElementById('language').textContent = fingerprintData.language;
+            document.getElementById('languages').textContent = fingerprintData.languages;
+            document.getElementById('onlineStatus').textContent = fingerprintData.onlineStatus;
+            document.getElementById('cookieEnabled').textContent = fingerprintData.cookieEnabled;
+            document.getElementById('doNotTrack').textContent = fingerprintData.doNotTrack;
+        }
+
+        async function collectScreenInfo() {
+            fingerprintData.screenResolution = `${screen.width}x${screen.height}`;
+            fingerprintData.availResolution = `${screen.availWidth}x${screen.availHeight}`;
+            fingerprintData.colorDepth = `${screen.colorDepth}-bit`;
+            fingerprintData.pixelRatio = window.devicePixelRatio;
+            fingerprintData.touchSupport = 'ontouchstart' in window || navigator.maxTouchPoints > 0 ? 'Yes' : 'No';
+
+            document.getElementById('screenResolution').textContent = fingerprintData.screenResolution;
+            document.getElementById('availResolution').textContent = fingerprintData.availResolution;
+            document.getElementById('colorDepth').textContent = fingerprintData.colorDepth;
+            document.getElementById('pixelRatio').textContent = fingerprintData.pixelRatio;
+            document.getElementById('touchSupport').textContent = fingerprintData.touchSupport;
+        }
+
+        async function collectCanvasFingerprint() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 200;
+            canvas.height = 50;
+            
+            // Draw text with various effects
+            ctx.textBaseline = 'top';
+            ctx.font = '14px Arial';
+            ctx.fillStyle = '#f60';
+            ctx.fillRect(125, 1, 62, 20);
+            ctx.fillStyle = '#069';
+            ctx.fillText('Browser Fingerprint 🔍', 2, 15);
+            ctx.fillStyle = 'rgba(102, 204, 0, 0.7)';
+            ctx.fillText('Browser Fingerprint 🔍', 4, 17);
+            
+            const canvasData = canvas.toDataURL();
+            fingerprintData.canvasHash = await hashString(canvasData);
+            
+            document.getElementById('canvasHash').textContent = fingerprintData.canvasHash;
+        }
+
+        async function collectWebGLFingerprint() {
+            const canvas = document.createElement('canvas');
+            const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+            
+            if (gl) {
+                const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+                if (debugInfo) {
+                    fingerprintData.webglVendor = gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL);
+                    fingerprintData.webglRenderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+                } else {
+                    fingerprintData.webglVendor = 'Not available';
+                    fingerprintData.webglRenderer = 'Not available';
+                }
+                
+                // Create WebGL fingerprint
+                const webglData = fingerprintData.webglVendor + fingerprintData.webglRenderer;
+                fingerprintData.webglHash = await hashString(webglData);
+            } else {
+                fingerprintData.webglVendor = 'WebGL not supported';
+                fingerprintData.webglRenderer = 'WebGL not supported';
+                fingerprintData.webglHash = 'N/A';
+            }
+            
+            document.getElementById('webglVendor').textContent = fingerprintData.webglVendor;
+            document.getElementById('webglRenderer').textContent = fingerprintData.webglRenderer;
+            document.getElementById('webglHash').textContent = fingerprintData.webglHash;
+        }
+
+        async function collectCapabilities() {
+            fingerprintData.javaEnabled = navigator.javaEnabled() ? 'Yes' : 'No';
+            fingerprintData.geolocation = 'geolocation' in navigator ? 'Available' : 'Not available';
+            fingerprintData.webrtc = 'RTCPeerConnection' in window ? 'Available' : 'Not available';
+            fingerprintData.webaudio = 'AudioContext' in window || 'webkitAudioContext' in window ? 'Available' : 'Not available';
+
+            document.getElementById('javaEnabled').textContent = fingerprintData.javaEnabled;
+            document.getElementById('geolocation').textContent = fingerprintData.geolocation;
+            document.getElementById('webrtc').textContent = fingerprintData.webrtc;
+            document.getElementById('webaudio').textContent = fingerprintData.webaudio;
+        }
+
+        async function collectStorageInfo() {
+            fingerprintData.localStorage = typeof(Storage) !== "undefined" && localStorage ? 'Available' : 'Not available';
+            fingerprintData.sessionStorage = typeof(Storage) !== "undefined" && sessionStorage ? 'Available' : 'Not available';
+            fingerprintData.indexedDB = 'indexedDB' in window ? 'Available' : 'Not available';
+            fingerprintData.websql = 'openDatabase' in window ? 'Available' : 'Not available';
+            fingerprintData.protocol = location.protocol;
+
+            document.getElementById('localStorage').textContent = fingerprintData.localStorage;
+            document.getElementById('sessionStorage').textContent = fingerprintData.sessionStorage;
+            document.getElementById('indexedDB').textContent = fingerprintData.indexedDB;
+            document.getElementById('websql').textContent = fingerprintData.websql;
+            document.getElementById('protocol').textContent = fingerprintData.protocol;
+        }
+
+        async function collectLocationTime() {
+            fingerprintData.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            fingerprintData.timezoneOffset = new Date().getTimezoneOffset();
+            fingerprintData.currentTime = new Date().toString();
+
+            document.getElementById('timezone').textContent = fingerprintData.timezone;
+            document.getElementById('timezoneOffset').textContent = fingerprintData.timezoneOffset + ' minutes';
+            document.getElementById('currentTime').textContent = fingerprintData.currentTime;
+        }
+
+        async function collectPluginInfo() {
+            const plugins = [];
+            for (let i = 0; i < navigator.plugins.length; i++) {
+                plugins.push(navigator.plugins[i].name);
+            }
+            fingerprintData.pluginCount = navigator.plugins.length;
+            fingerprintData.plugins = plugins.join(', ') || 'No plugins detected';
+
+            document.getElementById('pluginCount').textContent = fingerprintData.pluginCount;
+            document.getElementById('plugins').textContent = fingerprintData.plugins;
+        }
+
+        async function collectNetworkInfo() {
+            const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+            if (connection) {
+                fingerprintData.connectionType = connection.type || 'Unknown';
+                fingerprintData.effectiveType = connection.effectiveType || 'Unknown';
+                fingerprintData.downlink = connection.downlink ? connection.downlink + ' Mbps' : 'Unknown';
+                fingerprintData.rtt = connection.rtt ? connection.rtt + ' ms' : 'Unknown';
+            } else {
+                fingerprintData.connectionType = 'Not available';
+                fingerprintData.effectiveType = 'Not available';
+                fingerprintData.downlink = 'Not available';
+                fingerprintData.rtt = 'Not available';
+            }
+
+            document.getElementById('connectionType').textContent = fingerprintData.connectionType;
+            document.getElementById('effectiveType').textContent = fingerprintData.effectiveType;
+            document.getElementById('downlink').textContent = fingerprintData.downlink;
+            document.getElementById('rtt').textContent = fingerprintData.rtt;
+        }
+
+        async function detectFonts() {
+            const baseFonts = ['monospace', 'sans-serif', 'serif'];
+            const testFonts = ['Arial', 'Verdana', 'Times New Roman', 'Courier New', 'Georgia', 'Palatino', 'Garamond', 'Comic Sans MS', 'Trebuchet MS', 'Arial Black', 'Impact'];
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const detectedFonts = [];
+
+            for (const font of testFonts) {
+                for (const baseFont of baseFonts) {
+                    ctx.font = `72px ${baseFont}`;
+                    const baseWidth = ctx.measureText('mmmmmmmmmmlli').width;
+                    
+                    ctx.font = `72px '${font}', ${baseFont}`;
+                    const testWidth = ctx.measureText('mmmmmmmmmmlli').width;
+                    
+                    if (baseWidth !== testWidth) {
+                        detectedFonts.push(font);
+                        break;
+                    }
+                }
+            }
+
+            fingerprintData.detectedFonts = detectedFonts.join(', ') || 'No additional fonts detected';
+            document.getElementById('fontDetection').textContent = fingerprintData.detectedFonts;
+        }
+
+        async function hashString(str) {
+            // Simple hash function for demonstration
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+            return Math.abs(hash).toString(16);
+        }
+
+        async function generateFingerprintHash() {
+            const allData = Object.values(fingerprintData).join('|');
+            fingerprintData.fingerprintHash = await hashString(allData);
+            document.getElementById('fingerprintHash').textContent = fingerprintData.fingerprintHash;
+        }
+
+        function exportAsText() {
+            const text = `
+BROWSER FINGERPRINT REPORT
+==========================
+Generated: ${new Date().toLocaleString()}
+
+UNIQUE FINGERPRINT HASH: ${fingerprintData.fingerprintHash}
+
+BASIC INFORMATION:
+- User Agent: ${fingerprintData.userAgent}
+- Platform: ${fingerprintData.platform}
+- Language: ${fingerprintData.language}
+- Languages: ${fingerprintData.languages}
+- Online Status: ${fingerprintData.onlineStatus}
+- Cookie Enabled: ${fingerprintData.cookieEnabled}
+- Do Not Track: ${fingerprintData.doNotTrack}
+
+SCREEN & DISPLAY:
+- Screen Resolution: ${fingerprintData.screenResolution}
+- Available Resolution: ${fingerprintData.availResolution}
+- Color Depth: ${fingerprintData.colorDepth}
+- Pixel Ratio: ${fingerprintData.pixelRatio}
+- Touch Support: ${fingerprintData.touchSupport}
+
+CANVAS & WEBGL:
+- Canvas Hash: ${fingerprintData.canvasHash}
+- WebGL Vendor: ${fingerprintData.webglVendor}
+- WebGL Renderer: ${fingerprintData.webglRenderer}
+- WebGL Hash: ${fingerprintData.webglHash}
+
+CAPABILITIES:
+- Java Enabled: ${fingerprintData.javaEnabled}
+- Geolocation: ${fingerprintData.geolocation}
+- WebRTC: ${fingerprintData.webrtc}
+- WebAudio: ${fingerprintData.webaudio}
+
+STORAGE & SECURITY:
+- Local Storage: ${fingerprintData.localStorage}
+- Session Storage: ${fingerprintData.sessionStorage}
+- IndexedDB: ${fingerprintData.indexedDB}
+- WebSQL: ${fingerprintData.websql}
+- Current Protocol: ${fingerprintData.protocol}
+
+LOCATION & TIME:
+- Timezone: ${fingerprintData.timezone}
+- Timezone Offset: ${fingerprintData.timezoneOffset}
+- Current Time: ${fingerprintData.currentTime}
+
+PLUGINS & FONTS:
+- Plugin Count: ${fingerprintData.pluginCount}
+- Plugins: ${fingerprintData.plugins}
+- Font Detection: ${fingerprintData.detectedFonts}
+
+NETWORK INFORMATION:
+- Connection Type: ${fingerprintData.connectionType}
+- Effective Type: ${fingerprintData.effectiveType}
+- Downlink: ${fingerprintData.downlink}
+- RTT: ${fingerprintData.rtt}
+            `.trim();
+
+            downloadFile(text, 'browser-fingerprint.txt', 'text/plain');
+        }
+
+        function exportAsJSON() {
+            const json = JSON.stringify(fingerprintData, null, 2);
+            downloadFile(json, 'browser-fingerprint.json', 'application/json');
+        }
+
+        function saveToLocalStorage() {
+            const savedData = JSON.parse(localStorage.getItem('browserFingerprints') || '[]');
+            savedData.push({
+                ...fingerprintData,
+                timestamp: new Date().toISOString()
+            });
+            localStorage.setItem('browserFingerprints', JSON.stringify(savedData));
+        }
+
+        function downloadFile(content, filename, contentType) {
+            const blob = new Blob([content], { type: contentType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>

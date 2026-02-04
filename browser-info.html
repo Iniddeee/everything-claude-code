@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browser Information Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .info-button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .info-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .info-button:active {
+            transform: translateY(0);
+        }
+
+        .info-display {
+            display: none;
+            text-align: left;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            border: 1px solid #e9ecef;
+        }
+
+        .info-display.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .info-section {
+            margin-bottom: 20px;
+        }
+
+        .info-section h3 {
+            color: #495057;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 5px;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #495057;
+            min-width: 150px;
+        }
+
+        .info-value {
+            color: #212529;
+            word-break: break-all;
+            font-family: 'Courier New', monospace;
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .copy-button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 15px;
+            font-size: 0.9em;
+            transition: background 0.3s ease;
+        }
+
+        .copy-button:hover {
+            background: #218838;
+        }
+
+        .copy-button.copied {
+            background: #17a2b8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌐 Browser Information Tool</h1>
+        <p class="subtitle">Click the button below to discover detailed information about your browser</p>
+        
+        <button class="info-button" onclick="showBrowserInfo()">
+            Get Browser Info
+        </button>
+
+        <div id="infoDisplay" class="info-display">
+            <div class="info-section">
+                <h3>📱 Basic Information</h3>
+                <div class="info-item">
+                    <span class="info-label">User Agent:</span>
+                    <span class="info-value" id="userAgent"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Platform:</span>
+                    <span class="info-value" id="platform"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Language:</span>
+                    <span class="info-value" id="language"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Online Status:</span>
+                    <span class="info-value" id="onlineStatus"></span>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h3>🖥️ Screen Information</h3>
+                <div class="info-item">
+                    <span class="info-label">Screen Width:</span>
+                    <span class="info-value" id="screenWidth"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Screen Height:</span>
+                    <span class="info-value" id="screenHeight"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Color Depth:</span>
+                    <span class="info-value" id="colorDepth"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Pixel Ratio:</span>
+                    <span class="info-value" id="pixelRatio"></span>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h3>🔧 Browser Capabilities</h3>
+                <div class="info-item">
+                    <span class="info-label">Cookies Enabled:</span>
+                    <span class="info-value" id="cookiesEnabled"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Java Enabled:</span>
+                    <span class="info-value" id="javaEnabled"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Touch Support:</span>
+                    <span class="info-value" id="touchSupport"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Geolocation:</span>
+                    <span class="info-value" id="geolocation"></span>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h3>🌐 Network & Connection</h3>
+                <div class="info-item">
+                    <span class="info-label">Connection Type:</span>
+                    <span class="info-value" id="connectionType"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Effective Type:</span>
+                    <span class="info-value" id="effectiveType"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Downlink:</span>
+                    <span class="info-value" id="downlink"></span>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h3>🔒 Security & Storage</h3>
+                <div class="info-item">
+                    <span class="info-label">HTTPS:</span>
+                    <span class="info-value" id="https"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Local Storage:</span>
+                    <span class="info-value" id="localStorage"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Session Storage:</span>
+                    <span class="info-value" id="sessionStorage"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">IndexedDB:</span>
+                    <span class="info-value" id="indexedDB"></span>
+                </div>
+            </div>
+
+            <button class="copy-button" onclick="copyAllInfo()">
+                Copy All Information
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function showBrowserInfo() {
+            // Basic Information
+            document.getElementById('userAgent').textContent = navigator.userAgent;
+            document.getElementById('platform').textContent = navigator.platform;
+            document.getElementById('language').textContent = navigator.language;
+            document.getElementById('onlineStatus').textContent = navigator.onLine ? 'Online' : 'Offline';
+
+            // Screen Information
+            document.getElementById('screenWidth').textContent = screen.width + 'px';
+            document.getElementById('screenHeight').textContent = screen.height + 'px';
+            document.getElementById('colorDepth').textContent = screen.colorDepth + '-bit';
+            document.getElementById('pixelRatio').textContent = window.devicePixelRatio;
+
+            // Browser Capabilities
+            document.getElementById('cookiesEnabled').textContent = navigator.cookieEnabled ? 'Yes' : 'No';
+            document.getElementById('javaEnabled').textContent = navigator.javaEnabled() ? 'Yes' : 'No';
+            document.getElementById('touchSupport').textContent = 'ontouchstart' in window || navigator.maxTouchPoints > 0 ? 'Yes' : 'No';
+            document.getElementById('geolocation').textContent = 'geolocation' in navigator ? 'Available' : 'Not Available';
+
+            // Network & Connection
+            const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+            if (connection) {
+                document.getElementById('connectionType').textContent = connection.type || 'Unknown';
+                document.getElementById('effectiveType').textContent = connection.effectiveType || 'Unknown';
+                document.getElementById('downlink').textContent = connection.downlink ? connection.downlink + ' Mbps' : 'Unknown';
+            } else {
+                document.getElementById('connectionType').textContent = 'Not Available';
+                document.getElementById('effectiveType').textContent = 'Not Available';
+                document.getElementById('downlink').textContent = 'Not Available';
+            }
+
+            // Security & Storage
+            document.getElementById('https').textContent = location.protocol === 'https:' ? 'Yes' : 'No';
+            document.getElementById('localStorage').textContent = typeof(Storage) !== "undefined" && localStorage ? 'Available' : 'Not Available';
+            document.getElementById('sessionStorage').textContent = typeof(Storage) !== "undefined" && sessionStorage ? 'Available' : 'Not Available';
+            document.getElementById('indexedDB').textContent = 'indexedDB' in window ? 'Available' : 'Not Available';
+
+            // Show the info display
+            document.getElementById('infoDisplay').classList.add('active');
+        }
+
+        function copyAllInfo() {
+            const infoText = `
+BROWSER INFORMATION
+===================
+
+Basic Information:
+- User Agent: ${navigator.userAgent}
+- Platform: ${navigator.platform}
+- Language: ${navigator.language}
+- Online Status: ${navigator.onLine ? 'Online' : 'Offline'}
+
+Screen Information:
+- Screen Width: ${screen.width}px
+- Screen Height: ${screen.height}px
+- Color Depth: ${screen.colorDepth}-bit
+- Pixel Ratio: ${window.devicePixelRatio}
+
+Browser Capabilities:
+- Cookies Enabled: ${navigator.cookieEnabled ? 'Yes' : 'No'}
+- Java Enabled: ${navigator.javaEnabled() ? 'Yes' : 'No'}
+- Touch Support: ${'ontouchstart' in window || navigator.maxTouchPoints > 0 ? 'Yes' : 'No'}
+- Geolocation: ${'geolocation' in navigator ? 'Available' : 'Not Available'}
+
+Network & Connection:
+- Connection Type: ${navigator.connection ? navigator.connection.type || 'Unknown' : 'Not Available'}
+- Effective Type: ${navigator.connection ? navigator.connection.effectiveType || 'Unknown' : 'Not Available'}
+- Downlink: ${navigator.connection && navigator.connection.downlink ? navigator.connection.downlink + ' Mbps' : 'Not Available'}
+
+Security & Storage:
+- HTTPS: ${location.protocol === 'https:' ? 'Yes' : 'No'}
+- Local Storage: ${typeof(Storage) !== "undefined" && localStorage ? 'Available' : 'Not Available'}
+- Session Storage: ${typeof(Storage) !== "undefined" && sessionStorage ? 'Available' : 'Not Available'}
+- IndexedDB: ${'indexedDB' in window ? 'Available' : 'Not Available'}
+
+Generated on: ${new Date().toLocaleString()}
+            `.trim();
+
+            navigator.clipboard.writeText(infoText).then(() => {
+                const copyBtn = document.querySelector('.copy-button');
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = 'Copied!';
+                copyBtn.classList.add('copied');
+                
+                setTimeout(() => {
+                    copyBtn.textContent = originalText;
+                    copyBtn.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+            });
+        }
+    </script>
+</body>
+</html>
